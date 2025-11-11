@@ -1,22 +1,16 @@
-import Link from 'next/link'
+import { AppContainer } from "@/components/layout/AppContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { SurfaceCard } from "@/components/ui/SurfaceCard";
 
 export default function StatsPage() {
   return (
-    <div className="container">
-      <header style={{ textAlign: 'center', marginBottom: '3rem', color: 'white' }}>
-        <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem', fontWeight: 'bold' }}>
-          📊 Thống kê
-        </h1>
-        <Link href="/" style={{ color: 'white', textDecoration: 'underline' }}>
-          ← Về trang chủ
-        </Link>
-      </header>
+    <AppContainer>
+      <PageHeader title="📊 Thống kê" backHref="/" />
 
-      <div className="card">
-        <h2 style={{ marginBottom: '1.5rem', color: '#667eea' }}>Thống kê hoạt động</h2>
-        <p style={{ color: '#666' }}>Tính năng đang được phát triển...</p>
-      </div>
-    </div>
-  )
+      <SurfaceCard>
+        <h2 className="mb-6 text-indigo-500">Thống kê hoạt động</h2>
+        <p className="text-slate-600">Tính năng đang được phát triển...</p>
+      </SurfaceCard>
+    </AppContainer>
+  );
 }
-

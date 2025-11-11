@@ -1,28 +1,46 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
 
-// Mock data - trong thực tế bạn sẽ kết nối với database
-const members = [
-  { id: 1, name: 'Nguyễn Văn A', email: 'a@example.com', phone: '0901234567', joinDate: '2024-01-15' },
-  { id: 2, name: 'Trần Thị B', email: 'b@example.com', phone: '0901234568', joinDate: '2024-02-20' },
-  { id: 3, name: 'Lê Văn C', email: 'c@example.com', phone: '0901234569', joinDate: '2024-03-10' },
-]
+export const runtime = "nodejs";
 
 export async function GET() {
-  return NextResponse.json({ members })
+  const members = await prisma.user.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 50,
+  });
+  return NextResponse.json({ members });
 }
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const newMember = {
-      id: members.length + 1,
-      ...body,
-      joinDate: new Date().toISOString().split('T')[0],
+    const body = await request.json();
+
+    // If roleId provided, resolve role name for denormalized `role` field
+    let roleName: string | undefined = body.role;
+    if (body.roleId && !roleName) {
+      const role = await prisma.role.findUnique({ where: { id: body.roleId } });
+      roleName = role?.slug ?? role?.name ?? "member";
     }
-    members.push(newMember)
-    return NextResponse.json({ member: newMember, message: 'Thêm thành viên thành công' }, { status: 201 })
+
+    const created = await prisma.user.create({
+      data: {
+        name: body.name,
+        email: body.email,
+        phone: body.phone ?? null,
+        role: roleName ?? "member",
+        roleId: body.roleId ?? null,
+        imageUrl: body.imageUrl ?? null,
+        dupr: body.dupr ?? null,
+      },
+    });
+    return NextResponse.json(
+      { member: created, message: "Thêm thành viên thành công" },
+      { status: 201 }
+    );
   } catch (error) {
-    return NextResponse.json({ error: 'Lỗi khi thêm thành viên' }, { status: 500 })
+    return NextResponse.json(
+      { error: "Lỗi khi thêm thành viên" },
+      { status: 500 }
+    );
   }
 }
-

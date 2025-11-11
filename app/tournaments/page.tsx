@@ -1,22 +1,16 @@
-import Link from 'next/link'
+import { AppContainer } from "@/components/layout/AppContainer";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { SurfaceCard } from "@/components/ui/SurfaceCard";
 
 export default function TournamentsPage() {
   return (
-    <div className="container">
-      <header style={{ textAlign: 'center', marginBottom: '3rem', color: 'white' }}>
-        <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem', fontWeight: 'bold' }}>
-          🏆 Giải đấu
-        </h1>
-        <Link href="/" style={{ color: 'white', textDecoration: 'underline' }}>
-          ← Về trang chủ
-        </Link>
-      </header>
+    <AppContainer>
+      <PageHeader title="🏆 Giải đấu" backHref="/" />
 
-      <div className="card">
-        <h2 style={{ marginBottom: '1.5rem', color: '#667eea' }}>Danh sách giải đấu</h2>
-        <p style={{ color: '#666' }}>Tính năng đang được phát triển...</p>
-      </div>
-    </div>
-  )
+      <SurfaceCard>
+        <h2 className="mb-6 text-indigo-500">Danh sách giải đấu</h2>
+        <p className="text-slate-600">Tính năng đang được phát triển...</p>
+      </SurfaceCard>
+    </AppContainer>
+  );
 }
-
