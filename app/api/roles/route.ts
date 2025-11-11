@@ -1,23 +1,34 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
+// Ensure this route is never statically evaluated during export
+export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function GET() {
-  // Ensure base roles exist
   const base = [
-    { slug: "admin", name: "Quản trị" },
-    { slug: "member", name: "Thành viên" },
+    { id: "admin", slug: "admin", name: "Quản trị" },
+    { id: "member", slug: "member", name: "Thành viên" },
   ];
 
-  for (const r of base) {
-    await prisma.role.upsert({
-      where: { slug: r.slug },
-      update: {},
-      create: { slug: r.slug, name: r.name },
-    });
+  // If DATABASE_URL is not configured (e.g., Vercel build/export), return fallback
+  if (!process.env.DATABASE_URL) {
+    return NextResponse.json({ roles: base });
   }
 
-  const roles = await prisma.role.findMany({ orderBy: { slug: "asc" } });
-  return NextResponse.json({ roles });
+  try {
+    // Upsert base roles, then return from DB
+    for (const r of base) {
+      await prisma.role.upsert({
+        where: { slug: r.slug },
+        update: {},
+        create: { slug: r.slug, name: r.name },
+      });
+    }
+    const roles = await prisma.role.findMany({ orderBy: { slug: "asc" } });
+    return NextResponse.json({ roles });
+  } catch {
+    // Fallback to static roles if DB unavailable at runtime
+    return NextResponse.json({ roles: base });
+  }
 }
